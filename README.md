@@ -1,6 +1,6 @@
 # MiStock web
 
-Aplicación principal de MiStock: inventario, movimientos, alertas de stock, perfil y exportación CSV. Usa la identidad visual y el proyecto Firebase de las apps de Android y Windows.
+Aplicación principal de MiStock: inventario, movimientos, alertas de stock, perfil y exportación CSV. La versión 1.2 añade Ayuda con búsqueda de preguntas frecuentes, soporte por WhatsApp y Acerca de MiStock. Usa la identidad visual y el proyecto Firebase de las apps de Android y Windows.
 
 - Web principal: https://davjstudio.github.io/mistock/
 - Demostración: https://davjstudio.github.io/mistock/?demo=1
