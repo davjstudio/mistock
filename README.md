@@ -3,6 +3,7 @@
 Aplicación principal de MiStock: inventario, movimientos, alertas de stock, perfil y exportación CSV. La versión 1.3 añade fotos de productos compatibles con Android: selección, cambio, eliminación y miniaturas. También incluye Ayuda con búsqueda de preguntas frecuentes, soporte por WhatsApp y Acerca de MiStock. Usa la identidad visual y el proyecto Firebase de las apps de Android y Windows.
 
 - Web principal: https://davjstudio.github.io/mistock/
+- Planes y demostración Pro: https://davjstudio.github.io/mistock/planes.html
 - Demostración: https://davjstudio.github.io/mistock/?demo=1
 - Descargas para Windows y Android: https://davjstudio.github.io/mistock-descargas/
 

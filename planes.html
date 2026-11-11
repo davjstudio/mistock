@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0057e7">
+  <meta name="description" content="Compara MiStock Gratis y la propuesta de MiStock Pro para tu bodega. Prueba el flujo de conteo físico con datos de ejemplo.">
+  <title>Planes de MiStock para bodegas</title>
+  <link rel="icon" href="./logo.svg">
+  <link rel="stylesheet" href="./base.css">
+  <link rel="stylesheet" href="./planes.css">
+  <script type="module" src="./planes.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+  <header class="plans-header">
+    <a class="plans-brand" href="./"><img src="./logo.svg" width="36" height="36" alt="">MiStock</a>
+    <nav aria-label="Navegación">
+      <a href="https://davjstudio.github.io/mistock-descargas/">Descargas</a>
+      <a class="btn btn-outline btn-small" href="./">Iniciar sesión</a>
+    </nav>
+  </header>
+  <main id="contenido" class="plans-main">
+    <div class="plans-intro">
+      <h1>Planes de MiStock para tu bodega</h1>
+      <p>Registra entradas y salidas, consulta existencias desde el celular y detecta qué productos necesitan reposición.</p>
+    </div>
+    <div class="plans-grid">
+      <section class="plan-card" aria-labelledby="gratis">
+        <h2 id="gratis">Gratis</h2>
+        <p class="plan-price">Sin costo</p>
+        <p>Controla el inventario de una bodega con una cuenta.</p>
+        <ul>
+          <li>Registro de productos con foto opcional</li>
+          <li>Entradas y salidas con actualización de stock</li>
+          <li>Búsqueda e historial de movimientos</li>
+          <li>Avisos de stock bajo dentro de MiStock</li>
+        </ul>
+        <div class="plan-actions">
+          <a class="btn btn-primary" href="./">Abrir MiStock</a>
+          <a class="text-link" href="./?demo=1">Probar con datos de ejemplo</a>
+        </div>
+      </section>
+      <section class="plan-card plan-pro" aria-labelledby="pro">
+        <h2 id="pro">Pro <span class="plan-label">En preparación</span></h2>
+        <p class="plan-price">Tarifa por definir</p>
+        <p>Incluye Gratis y añade un flujo de conteo físico y aprobación para una bodega.</p>
+        <ul>
+          <li>Dos cuentas con permisos de dueño y encargado</li>
+          <li>Conteos físicos con cálculo de diferencias</li>
+          <li>Aprobación de ajustes por el dueño</li>
+          <li>Historial con motivo, saldos, responsables y fechas</li>
+        </ul>
+        <div class="plan-actions">
+          <a class="btn btn-outline" href="#demo-pro">Probar la demostración Pro</a>
+        </div>
+      </section>
+    </div>
+    <p class="pilot-note"><strong>Prueba Pro propuesta.</strong> Durará 14 días desde la activación y la carga inicial, sin cobro ni renovación automática. Al cierre se podrá continuar en Gratis con los datos y una cuenta.</p>
+    <section id="demo-pro" class="demo-section" aria-labelledby="demo-title">
+      <h2 id="demo-title">Prueba el ajuste de stock</h2>
+      <p>Ejemplo de una bodega con 20 unidades de arroz registradas. Prueba el flujo como encargado y luego como dueño. Los cambios de esta demostración son temporales.</p>
+      <div class="demo-card">
+        <div class="demo-summary">
+          <div><span>Producto de ejemplo</span><strong>Arroz de 1 kg</strong></div>
+          <div><span>Stock registrado</span><strong><output id="demo-stock">20</output> unidades</strong></div>
+        </div>
+        <fieldset class="role-picker">
+          <legend>Elige un rol para la demostración</legend>
+          <label><input type="radio" name="demo-role" value="encargado" checked> Encargado</label>
+          <label><input type="radio" name="demo-role" value="dueno"> Dueño</label>
+        </fieldset>
+        <div id="encargado-panel">
+          <h3>Registrar conteo físico</h3>
+          <form id="demo-count">
+            <label for="count-quantity">Unidades contadas</label>
+            <input id="count-quantity" name="quantity" type="number" min="0" max="999999" step="1" value="18" required inputmode="numeric">
+            <label for="count-reason">Motivo</label>
+            <textarea id="count-reason" name="reason" maxlength="160" rows="2" required>Conteo físico de fin de día</textarea>
+            <p class="difference" id="demo-difference">Diferencia de 2 unidades menos.</p>
+            <button class="btn btn-primary" id="send-count" type="submit">Enviar conteo para aprobación</button>
+          </form>
+          <p id="count-locked" hidden>El conteo está pendiente. Cambia al rol Dueño para revisarlo.</p>
+        </div>
+        <div id="dueno-panel" hidden>
+          <h3>Revisar conteo pendiente</h3>
+          <p id="review-empty">El encargado debe enviar un conteo para que el dueño pueda revisarlo.</p>
+          <div id="review-details" hidden>
+            <dl class="audit-fields">
+              <div><dt>Stock anterior</dt><dd id="review-stock"></dd></div>
+              <div><dt>Conteo físico</dt><dd id="review-count"></dd></div>
+              <div><dt>Diferencia</dt><dd id="review-difference"></dd></div>
+              <div><dt>Motivo</dt><dd id="review-reason"></dd></div>
+              <div><dt>Registrado por</dt><dd>Encargado de ejemplo</dd></div>
+            </dl>
+            <button class="btn btn-primary" id="approve-count" type="button">Aprobar ajuste</button>
+          </div>
+        </div>
+        <p id="demo-status" class="demo-status" role="status"></p>
+        <div class="demo-history">
+          <h3>Historial de ajustes</h3>
+          <p id="history-empty">Los ajustes aprobados aparecerán aquí.</p>
+          <ol id="history-list" aria-label="Ajustes aprobados"></ol>
+        </div>
+        <button class="btn btn-outline btn-small" id="reset-demo" type="button">Reiniciar ejemplo</button>
+      </div>
+    </section>
+  </main>
+  <footer class="plans-footer"><a href="./privacidad.html">Privacidad</a><a href="https://davjstudio.github.io/mistock-descargas/">MiStock Descargas</a></footer>
+</body>
+</html>
