@@ -7,6 +7,8 @@ Aplicación principal de MiStock: inventario, movimientos, alertas de stock, per
 - Demostración: https://davjstudio.github.io/mistock/?demo=1
 - Descargas para Windows y Android: https://davjstudio.github.io/mistock-descargas/
 
+La versión web 1.4 incorpora navegación superior adaptable y un resumen con disponibilidad, valor, actividad reciente y reposición.
+
 ## Uso
 
 Inicia sesión con tu cuenta de MiStock o crea una cuenta desde el formulario. También puedes explorar con datos de ejemplo sin acceder a una cuenta real. Para usar la web en iPhone, abre la dirección principal con Safari y selecciona Compartir → Añadir a pantalla de inicio.

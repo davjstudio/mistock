@@ -10,7 +10,7 @@ const newId=()=>crypto.randomUUID().replaceAll('-','');
 const installed=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 const state={authenticated:false,demo:false,busy:false,page:'home',products:[],movements:[],profile:{name:'',email:'',phone:'',notificationsEnabled:true},loaded:false,movementsLoaded:false,profileLoaded:false,search:'',stockFilter:'all',categoryFilter:'all',movementSearch:'',movementFilter:'all',notice:'',lastUpdated:'',authMode:'login',authEmail:'',draft:null,helpSearch:'',photoBusy:false};
 let api,installPrompt,toastTimer,photoSequence=0;
-const pages={home:['Resumen de tu negocio','Cada producto en su lugar. Cada decisión, más clara.'],products:['Tus productos','Consulta y organiza todo tu inventario.'],movements:['Movimientos','Cada entrada y salida, en un solo lugar.'],alerts:['Alertas de stock','Descubre qué necesitas reponer.'],profile:['Mi perfil','Tu cuenta y tus preferencias de MiStock.'],help:['Ayuda','Resuelve tus dudas rápidamente.'],about:['Acerca de MiStock','Tu inventario, siempre en tus manos.']};
+const pages={home:['Resumen de inventario','Existencias, actividad y productos por reponer.'],products:['Productos','Busca, filtra y edita tu catálogo.'],movements:['Movimientos','Consulta las entradas y salidas de tu inventario.'],alerts:['Alertas de stock','Descubre qué necesitas reponer.'],profile:['Mi perfil','Tu cuenta y tus preferencias de MiStock.'],help:['Ayuda','Resuelve tus dudas rápidamente.'],about:['Acerca de MiStock','Tu inventario, siempre en tus manos.']};
 function setBusy(value){state.busy=value;document.querySelectorAll('#app button,#app input,#app select,#app textarea,#modal button,#modal input,#modal select,#modal textarea').forEach(el=>el.disabled=value);document.querySelector('.busy-mark')?.remove();if(value){const mark=document.createElement('div');mark.className='busy-mark';mark.setAttribute('aria-label','Procesando');document.body.append(mark);}root.setAttribute('aria-busy',String(value));}
 function toast(message){clearTimeout(toastTimer);toastElement.textContent=message;toastElement.hidden=false;toastTimer=setTimeout(()=>toastElement.hidden=true,5000);}
 function notice(message){state.notice=message;const element=document.querySelector('#notice');if(element){element.innerHTML=message?`${esc(message)}<button class="dismiss" data-action="dismiss-notice" aria-label="Cerrar aviso">×</button>`:'';element.hidden=!message;}}
@@ -19,23 +19,170 @@ function pill(product){const status=statusOf(product);return `<span class="stock
 function brand(){return '<a class="app-brand" href="./" aria-label="MiStock, inicio"><img src="./logo.svg" width="38" height="38" alt=""><span>MiStock</span></a>';}
 function installButton(){return installed()?'':`<button class="install-btn" data-action="install">${icon('install')} Instalar</button>`;}
 function renderAuth(){
- const register=state.authMode==='register';root.innerHTML=`<div class="auth-layout"><aside class="auth-art">${brand()}<div><h1>Tu inventario.<br>Siempre contigo.</h1><p>Organiza tu negocio desde el navegador. Tus productos, movimientos y alertas, en un solo lugar.</p><ul><li>✓ Los mismos productos y la misma cuenta</li><li>✓ Entradas y salidas bajo control</li><li>✓ Alertas para reponer a tiempo</li></ul></div><small>MISTOCK WEB · TU NEGOCIO, DONDE ESTÉS</small></aside><section class="auth-side"><header><a href="https://davjstudio.github.io/mistock-descargas/" class="back-link">← MiStock Descargas</a>${installButton()}</header><main id="main-content" class="auth-form"><span class="overline">BIENVENIDO A MISTOCK</span><h1>${register?'Crea tu cuenta':'Inicia sesión'}</h1><p>${register?'Organiza tu inventario desde cualquier dispositivo.':'Usa la misma cuenta que en tu celular o computadora.'}</p><form id="auth-form">${register?'<label class="field"><span>Nombre</span><input name="name" required maxlength="100" autocomplete="name"></label>':''}<label class="field"><span>Correo electrónico</span><input name="email" type="email" required maxlength="254" autocomplete="email" value="${esc(state.authEmail)}" autocapitalize="none" spellcheck="false"></label>${register?'<label class="field"><span>Celular</span><input name="phone" type="tel" required maxlength="30" autocomplete="tel"></label>':''}<label class="field"><span>Contraseña</span><input name="password" type="password" required ${register?'minlength="6"':''} maxlength="128" autocomplete="${register?'new-password':'current-password'}">${register?'<small>Al menos 6 caracteres.</small>':''}</label><div class="form-error" role="alert"></div><button class="btn btn-primary" type="submit">${register?'Crear cuenta':'Entrar a MiStock'} ${icon('arrow')}</button></form>${!register?'<button class="quiet-button" data-action="reset-password">Olvidé mi contraseña</button>':''}<button class="quiet-button" data-action="toggle-auth">${register?'Ya tengo cuenta. Iniciar sesión':'¿No tienes cuenta? Regístrate'}</button><div class="auth-or"><button class="btn btn-outline" data-action="demo">Explorar con datos de ejemplo</button><p class="fine-print">La demostración es temporal y no modifica tu inventario.</p></div></main><footer class="auth-footer"><a href="./planes.html">Planes Gratis y Pro</a> · <a href="./privacidad.html">Datos y privacidad</a> · MiStock web</footer></section></div>`;
+ const register=state.authMode==='register';
+ root.innerHTML=`
+   <div class="entry-page">
+     <header class="entry-bar">
+       ${brand()}
+       <nav aria-label="Enlaces de MiStock">
+         <a href="./planes.html">Planes</a>
+         <a href="https://davjstudio.github.io/mistock-descargas/">Descargas</a>
+         ${installButton()}
+       </nav>
+     </header>
+     <div class="entry-layout">
+       <main id="main-content" class="auth-form entry-card">
+         <h1>${register?'Crea tu cuenta':'Inicia sesión'}</h1>
+         <p>${register?'Crea una cuenta para gestionar tu inventario.':'Usa la misma cuenta que en tu celular o computadora.'}</p>
+         <form id="auth-form">
+           ${register?'<label class="field"><span>Nombre</span><input name="name" required maxlength="100" autocomplete="name"></label>':''}
+           <label class="field"><span>Correo electrónico</span><input name="email" type="email" required maxlength="254" autocomplete="email" value="${esc(state.authEmail)}" autocapitalize="none" spellcheck="false"></label>
+           ${register?'<label class="field"><span>Celular</span><input name="phone" type="tel" required maxlength="30" autocomplete="tel"></label>':''}
+           <label class="field"><span>Contraseña</span><input name="password" type="password" required ${register?'minlength="6"':''} maxlength="128" autocomplete="${register?'new-password':'current-password'}">${register?'<small>Al menos 6 caracteres.</small>':''}</label>
+           <div class="form-error" role="alert"></div>
+           <button class="btn btn-primary" type="submit">${register?'Crear cuenta':'Entrar a MiStock'} ${icon('arrow')}</button>
+         </form>
+         <div class="entry-auth-links">
+           ${!register?'<button class="quiet-button" data-action="reset-password">Olvidé mi contraseña</button>':''}
+           <button class="quiet-button" data-action="toggle-auth">${register?'Ya tengo cuenta. Iniciar sesión':'¿No tienes cuenta? Regístrate'}</button>
+         </div>
+       </main>
+       <section class="entry-intro">
+         <div class="entry-symbol" aria-hidden="true">${icon('products')}</div>
+         <h2>Tu inventario,<br>al alcance.</h2>
+         <p>Consulta existencias, registra movimientos y revisa qué productos necesitas reponer.</p>
+         <button class="btn btn-outline" data-action="demo">Explorar con datos de ejemplo ${icon('arrow')}</button>
+         <small>Sesión temporal con datos ficticios.</small>
+       </section>
+     </div>
+     <footer class="entry-footer"><a href="./privacidad.html">Datos y privacidad</a></footer>
+   </div>`;
 }
-function navButtons(mobile=false){return Object.keys(pages).filter(key=>!mobile||!['help','about'].includes(key)).map(key=>`<button class="nav-button ${state.page===key?'active':''}" data-nav="${key}" ${state.page===key?'aria-current="page"':''}>${icon(key)}<span>${({home:mobile?'Inicio':'Resumen',products:'Productos',movements:'Movimientos',alerts:'Alertas',profile:mobile?'Perfil':'Mi perfil',help:'Ayuda',about:'Acerca de MiStock'})[key]}</span></button>`).join('');}
+
+const primaryNav = {home:'Resumen',products:'Productos',movements:'Movimientos',alerts:'Alertas'};
+function navButtons(){
+ return Object.entries(primaryNav).map(([key,label])=>`
+   <button class="nav-button" data-nav="${key}" ${state.page===key?'aria-current="page"':''}>
+     ${icon(key)} <span>${label}</span>
+   </button>`).join('');
+}
+
 function render(){
  if(!state.authenticated){renderAuth();setBusy(state.busy);return;}
- const [title,subtitle]=pages[state.page];const newMovement=state.page==='movements';
- root.innerHTML=`<div class="shell"><aside class="sidebar">${brand()}<div><p class="side-label">MI NEGOCIO</p><nav class="main-nav" aria-label="MiStock">${navButtons()}</nav></div><div class="side-bottom"><div class="account-card"><small>TU CUENTA</small><strong>${esc(state.profile.name||'Mi negocio')}</strong><span>${esc(state.demo?'Sesión de demostración':api.email)}</span></div><button class="nav-button" data-action="logout">${icon('logout')} Cerrar sesión</button><a class="nav-button" href="https://davjstudio.github.io/mistock-descargas/">${icon('download')} Descargar MiStock</a><p class="side-version">MiStock web · 1.3</p></div></aside><div class="workspace"><header class="workspace-header"><div><span class="overline">${state.demo?'DEMOSTRACIÓN / MISTOCK':'MI NEGOCIO / MISTOCK'}</span><h1>${title}</h1><p>${subtitle}</p></div><div class="header-actions"><button class="refresh-btn" ${['help','about'].includes(state.page)?'hidden':''} data-action="refresh" aria-label="Actualizar datos">${icon('refresh')}<span class="button-label">Actualizar</span></button>${!['profile','help','about'].includes(state.page)?`<button class="btn btn-white" data-action="${newMovement?'new-movement':'new-product'}" aria-label="${newMovement?'Registrar movimiento':'Nuevo producto'}">${icon('plus')}<span class="button-label">${newMovement?'Registrar movimiento':'Nuevo producto'}</span></button>`:''}</div></header>${state.demo?'<div class="banner"><span>DATOS DE EJEMPLO · Los cambios aquí no afectan tu cuenta real.</span></div>':''}<div id="notice" class="banner warning" role="alert" ${state.notice?'':'hidden'}>${esc(state.notice)}${state.notice?'<button class="dismiss" data-action="dismiss-notice" aria-label="Cerrar aviso">×</button>':''}</div>${navigator.onLine?'':'<div class="offline-banner">Sin conexión. Necesitas internet para consultar o guardar tu inventario.</div>'}<main id="main-content">${pageHtml()}</main><footer class="page-footer"><span>${esc(state.lastUpdated||(state.demo?'Sesión temporal de demostración':'Sin actualizar'))}</span><span>${state.demo?'Los cambios se descartan al salir':installButton()}</span></footer></div><nav class="bottom-nav" aria-label="Navegación principal">${navButtons(true)}</nav></div>`;
+ const [title,subtitle]=pages[state.page];
+ const movementPage=state.page==='movements';
+ const showActions=['home','products','movements','alerts'].includes(state.page);
+ const accountName=state.profile.name||'Mi negocio';
+ root.innerHTML=`
+   <div class="web-shell">
+     <header class="app-header">
+       <div class="app-header-inner">
+         <button class="app-brand brand-button" data-nav="home" aria-label="MiStock, inicio"><img src="./logo.svg" width="38" height="38" alt=""><span>MiStock</span></button>
+         <nav class="web-nav" aria-label="Navegación principal">${navButtons()}</nav>
+         <div class="account-tools">
+           <button class="app-help" data-nav="help" aria-label="Ayuda" title="Ayuda" ${['help','about'].includes(state.page)?'aria-current="true"':''}>${icon('help')}</button>
+           <button class="account-button" data-nav="profile" aria-label="Mi perfil" ${state.page==='profile'?'aria-current="page"':''}>
+             <span class="account-initial" aria-hidden="true">${esc(Array.from(accountName)[0].toLocaleUpperCase('es'))}</span>
+             <span class="account-label">${esc(accountName)}</span>
+           </button>
+         </div>
+       </div>
+     </header>
+     <div class="workspace">
+       <header class="workspace-header">
+         <div class="workspace-heading">
+           ${state.demo?'<span class="demo-label">Datos de ejemplo</span>':''}
+           <h1 tabindex="-1">${title}</h1>
+           <p>${subtitle}</p>
+         </div>
+         <div class="header-actions">
+           <button class="refresh-btn" ${['help','about'].includes(state.page)?'hidden':''} data-action="refresh" aria-label="Actualizar datos" title="Actualizar datos">${icon('refresh')}</button>
+           ${showActions?`<button class="btn btn-primary" data-action="${movementPage?'new-movement':'new-product'}">${icon('plus')} ${movementPage?'Registrar movimiento':'Nuevo producto'}</button>`:''}
+         </div>
+       </header>
+       <div id="notice" class="banner warning" role="alert" ${state.notice?'':'hidden'}>${esc(state.notice)}${state.notice?'<button class="dismiss" data-action="dismiss-notice" aria-label="Cerrar aviso">×</button>':''}</div>
+       ${navigator.onLine?'':'<div class="offline-banner">Sin conexión. Necesitas internet para consultar o guardar tu inventario.</div>'}
+       <main id="main-content">${pageHtml()}</main>
+       <footer class="page-footer">
+         <span>${esc(state.lastUpdated||(state.demo?'Sesión temporal de demostración':'Sin actualizar'))}</span>
+         <span class="footer-actions"><a href="https://davjstudio.github.io/mistock-descargas/">Descargas</a>${state.demo?'<button class="quiet-button" data-action="logout">Salir de la demo</button>':installButton()}</span>
+       </footer>
+     </div>
+   </div>`;
  setBusy(state.busy);
 }
 function pageHtml(){if(state.page==='help')return helpHtml();if(state.page==='about')return aboutHtml();return state.page==='home'?homeHtml():state.page==='movements'?movementsHtml():state.page==='profile'?profileHtml():productsHtml();}
 function empty(title,description,symbol='products'){return `<div class="empty-state">${icon(symbol)}<h2>${esc(title)}</h2><p>${esc(description)}</p></div>`;}
 function homeHtml(){
- if(!state.loaded)return empty('Cargando tu inventario','Conectando con los productos de tu cuenta.');
- const low=state.products.filter(p=>statusOf(p)==='Poco stock').length,out=state.products.filter(p=>p.stock<=0).length,available=state.products.length-low-out;
- let total=0;for(const p of state.products)total+=p.price*p.stock;
- const attention=state.products.filter(p=>p.stock<=p.minStock||p.stock<=0).sort((a,b)=>a.stock-b.stock||a.name.localeCompare(b.name,'es')).slice(0,5);
- return `<div class="stats-grid"><article class="stat blue"><small>Productos</small><strong>${state.products.length}</strong><p>en tu inventario</p></article><article class="stat"><small>En stock</small><strong class="green-text">${available}</strong><p>sobre el mínimo</p></article><article class="stat"><small>Poco stock</small><strong class="orange-text">${low}</strong><p>por reponer</p></article><article class="stat"><small>Sin stock</small><strong class="red-text">${out}</strong><p>agotados</p></article></div><div class="quick-actions"><button class="quick-action" data-action="new-movement"><span>Registrar movimiento</span>${icon('movements')}</button><button class="quick-action secondary" data-nav="movements"><span>Ver historial</span>${icon('arrow')}</button></div><section class="card value-card"><div><span class="card-label">Valor de tu inventario</span><div class="value">${Number.isFinite(total)&&total<Number.MAX_SAFE_INTEGER?money(total):'Fuera de rango'}</div><span class="hint">Stock actual × precio de venta</span></div><button class="quiet-button" data-nav="products">Ver productos →</button></section><section class="card"><div class="page-top"><h2>Necesitan tu atención</h2><button class="quiet-button" data-nav="alerts">Ver alertas →</button></div>${attention.length?attention.map(p=>`<div class="attention-row"><div><strong>${esc(p.name)}</strong><small>${esc(p.category)} · ${p.stock} uds.</small></div>${pill(p)}<button class="restock-button" data-action="restock" data-id="${esc(p.id)}" aria-label="Reponer ${esc(p.name)}">Reponer</button></div>`).join(''):'<p class="hint">Todo bajo control. No hay productos por reponer.</p>'}</section>`;
+ if(!state.loaded){
+   return state.notice
+     ? empty('No se pudo cargar el inventario','Pulsa Actualizar datos para reintentar.')
+     : empty('Cargando tu inventario','Conectando con los productos de tu cuenta.');
+ }
+ const total=state.products.length;
+ const low=state.products.filter(p=>statusOf(p)==='Poco stock').length;
+ const out=state.products.filter(p=>statusOf(p)==='Sin stock').length;
+ const stock=[{label:'En stock',css:'healthy',count:total-low-out},{label:'Poco stock',css:'low',count:low},{label:'Sin stock',css:'empty',count:out}];
+ const value=state.products.reduce((sum,p)=>sum+p.price*p.stock,0);
+ const valueLabel=Number.isFinite(value)&&Math.abs(value)<Number.MAX_SAFE_INTEGER?money(value):'Fuera de rango';
+ const attention=state.products.filter(p=>statusOf(p)!=='En stock').sort((a,b)=>a.stock-b.stock||a.name.localeCompare(b.name,'es')).slice(0,5);
+ const latest=[...state.movements].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,3);
+ const segments=stock.filter(item=>item.count>0).map(item=>`<span class="meter-segment ${item.css}" style="flex-grow:${item.count}"></span>`).join('');
+ const breakdown=stock.map(item=>`<div class="stock-metric ${item.css}"><dt>${item.label}</dt><dd>${item.count}</dd></div>`).join('');
+ const replenishment=attention.length
+   ? `<ul class="replenishment-list">${attention.map(p=>`
+     <li class="attention-row">
+       <div class="replenishment-product">${productThumbnail(p)}<div><strong>${esc(p.name)}</strong><small>${esc(p.category)}</small></div></div>
+       ${pill(p)}
+       <span class="restock-qty">${p.stock} uds.</span>
+       <button class="restock-button" data-action="restock" data-id="${esc(p.id)}" aria-label="Reponer ${esc(p.name)}">Reponer</button>
+     </li>`).join('')}</ul>`
+   : '<p class="hint overview-empty">No hay productos por reponer.</p>';
+
+ return `
+   <div class="overview-grid">
+     <section class="stock-overview" aria-labelledby="stock-title">
+       <div class="overview-heading">
+         <div><h2 id="stock-title">Disponibilidad</h2><p>${total} ${total===1?'producto en el inventario':'productos en el inventario'}</p></div>
+         <button class="quiet-button" data-nav="products">Ver productos ${icon('arrow')}</button>
+       </div>
+       <div class="stock-meter" aria-hidden="true">${segments}</div>
+       <dl class="stock-breakdown">${breakdown}</dl>
+       <div class="inventory-worth">
+         <div><span>Valor del inventario</span><small>Stock actual × precio de venta</small></div>
+         <strong>${valueLabel}</strong>
+       </div>
+     </section>
+     <section class="activity-panel card" aria-labelledby="activity-title">
+       <div class="overview-heading"><h2 id="activity-title">Actividad reciente</h2><button class="quiet-button" data-nav="movements">Historial ${icon('arrow')}</button></div>
+       ${recentActivity(latest)}
+       <button class="btn btn-outline activity-cta" data-action="new-movement">${icon('movements')} Registrar movimiento</button>
+     </section>
+     <section class="replenishment-panel card" aria-labelledby="replenishment-title">
+       <div class="overview-heading">
+         <div><h2 id="replenishment-title">Por reponer</h2><p>${low+out} ${low+out===1?'producto en alerta':'productos en alerta'}</p></div>
+         <button class="quiet-button" data-nav="alerts">Ver alertas ${icon('arrow')}</button>
+       </div>
+       ${replenishment}
+     </section>
+   </div>`;
+}
+
+function recentActivity(movements){
+ if(!state.movementsLoaded){
+   const message=state.notice?'No se pudo cargar el historial.':'Cargando movimientos…';
+   return `<p class="hint overview-empty">${message}</p>`;
+ }
+ if(!movements.length)return '<p class="hint overview-empty">Aún no hay movimientos registrados.</p>';
+ const rows=movements.map(m=>{
+   const isExit=m.type==='out';
+   return `<li>
+     <span class="movement-symbol ${isExit?'out':''}">${icon(isExit?'out':'in')}</span>
+     <div><strong>${esc(m.productName)}</strong><small>${isExit?'Salida':'Entrada'} · ${esc(dateLabel(m.date))}</small></div>
+     <span class="recent-qty">${isExit?'−':'+'}${m.quantity}</span>
+   </li>`;
+ });
+ return `<ul class="recent-list">${rows.join('')}</ul>`;
 }
 function filteredProducts(){return state.products.filter(p=>(!state.search||`${p.name} ${p.code}`.toLocaleLowerCase('es').includes(state.search.toLocaleLowerCase('es')))&&(state.categoryFilter==='all'||p.category===state.categoryFilter)&&(state.page==='alerts'?(p.stock<=p.minStock||p.stock<=0):state.stockFilter==='all'||statusOf(p)===state.stockFilter)).sort((a,b)=>state.page==='alerts'?a.stock-b.stock||a.name.localeCompare(b.name,'es'):a.name.localeCompare(b.name,'es'));}
 function productRows(){const items=filteredProducts();if(!items.length)return empty(state.products.length?'No encontramos productos':'Tu inventario empieza aquí',state.products.length?'Prueba otra búsqueda o cambia los filtros.':'Agrega tu primer producto para organizar tu negocio.');return items.map(p=>`<article class="product-item" role="listitem"><div class="product-info">${productThumbnail(p)}<div class="product-name"><small>${esc(p.code)}</small><h3>${esc(p.name)}</h3><small>${esc(p.category)}</small></div></div><div class="product-price">${money(p.price)}<small>precio de venta</small></div><div class="stock-info">${pill(p)}<small>${p.stock} uds. · mín. ${p.minStock}</small></div><div class="row-actions">${state.page==='alerts'?`<button class="restock-button" data-action="restock" data-id="${esc(p.id)}">Reponer</button>`:`<button class="icon-button" data-action="edit-product" data-id="${esc(p.id)}" aria-label="Editar ${esc(p.name)}">${icon('edit')}</button><button class="icon-button danger" data-action="delete-product" data-id="${esc(p.id)}" aria-label="Eliminar ${esc(p.name)}">${icon('trash')}</button>`}</div></article>`).join('');}
@@ -48,8 +195,8 @@ function filterChanged(element){if(element.dataset.filter==='help'){state.helpSe
 function demo(){api.logout();Object.assign(state,{authenticated:true,demo:true,page:pages[new URLSearchParams(location.search).get('page')]?new URLSearchParams(location.search).get('page'):'home',loaded:true,movementsLoaded:true,profileLoaded:true,notice:'',search:'',stockFilter:'all',categoryFilter:'all',movementSearch:'',movementFilter:'all',profile:{name:'Negocio de ejemplo',email:'demo@mistock.example',phone:'+51 999 123 456',notificationsEnabled:true},lastUpdated:'Demostración · Datos de ejemplo temporales'});
  state.products=[['demo-1','P0001','Arroz extra 1 kg',4.5,42,8,'Abarrotes','Bolsa de arroz extra.'],['demo-2','P0002','Aceite vegetal 1 L',9.9,3,5,'Abarrotes','Botella de un litro.'],['demo-3','P0003','Leche evaporada',4.2,24,6,'Lácteos','Lata de 400 g.'],['demo-4','P0004','Agua mineral 625 ml',1.8,0,10,'Bebidas','Sin gas.'],['demo-5','P0005','Detergente 800 g',8.5,16,4,'Limpieza',''],['demo-6','P0006','Galletas de avena',2.5,5,5,'Snacks',''],['demo-7','P0007','Yogur natural 1 L',7.9,12,3,'Lácteos','Conservar refrigerado.'],['demo-8','P0008','Jugo de naranja 1 L',5.5,18,4,'Bebidas','']].map(([id,code,name,price,stock,minStock,category,description])=>({id,code,name,price,stock,minStock,category,description,updateTime:''}));
  state.movements=[{id:'dm1',type:'in',productId:'demo-1',productName:'Arroz extra 1 kg',quantity:20,note:'Reposición de mercadería',date:new Date(Date.now()-3*3600000).toISOString()},{id:'dm2',type:'out',productId:'demo-3',productName:'Leche evaporada',quantity:4,note:'Venta del día',date:new Date(Date.now()-3600000).toISOString()},{id:'dm3',type:'in',productId:'demo-5',productName:'Detergente 800 g',quantity:8,note:'Compra a proveedor',date:new Date(Date.now()-86400000).toISOString()}];render();}
-async function loadData(){if(state.demo){render();return;}const results=await Promise.allSettled([api.products(),api.profile()]);const errors=[];if(results[0].status==='fulfilled'){state.products=results[0].value;state.loaded=true;state.lastUpdated='Actualizado '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});}else errors.push(results[0].reason.message);if(results[1].status==='fulfilled'){state.profile=results[1].value;state.profileLoaded=true;}else errors.push('No se pudo cargar el perfil.');if(state.page==='movements'){try{state.movements=await api.movements();state.movementsLoaded=true;}catch(e){errors.push(e.message);}}state.notice=[api.profileWarning,...errors].filter(Boolean).join(' ');render();}
-async function navigate(page){if(!pages[page]||state.busy)return;state.page=page;if(page==='alerts'){state.stockFilter='all';state.categoryFilter='all';state.search='';}render();window.scrollTo({top:0,behavior:'instant'});if(!state.demo&&(page==='movements'||page==='profile'))await task(async()=>{if(page==='movements'){state.movements=await api.movements();state.movementsLoaded=true;}else{state.profile=await api.profile();state.profileLoaded=true;}render();});}
+async function loadData(){if(state.demo){render();return;}const fetchActivity=['home','movements'].includes(state.page);const results=await Promise.allSettled([api.products(),api.profile(),fetchActivity?api.movements():Promise.resolve(null)]);const errors=[];if(results[0].status==='fulfilled'){state.products=results[0].value;state.loaded=true;state.lastUpdated='Actualizado '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});}else errors.push(results[0].reason.message);if(results[1].status==='fulfilled'){state.profile=results[1].value;state.profileLoaded=true;}else errors.push('No se pudo cargar el perfil.');if(fetchActivity){if(results[2].status==='fulfilled'){state.movements=results[2].value;state.movementsLoaded=true;}else errors.push(results[2].reason.message);}state.notice=[api.profileWarning,...errors].filter(Boolean).join(' ');render();}
+async function navigate(page){if(!pages[page]||state.busy)return;state.page=page;if(page==='alerts'){state.stockFilter='all';state.categoryFilter='all';state.search='';}render();window.scrollTo({top:0,behavior:'instant'});root.querySelector('.workspace-heading h1')?.focus({preventScroll:true});if(!state.demo&&(page==='movements'||page==='profile'||(page==='home'&&!state.movementsLoaded)))await task(async()=>{if(page==='movements'||page==='home'){state.movements=await api.movements();state.movementsLoaded=true;}else{state.profile=await api.profile();state.profileLoaded=true;}render();});}
 function logout(){if(state.busy)return;api.logout();Object.assign(state,{authenticated:false,demo:false,products:[],movements:[],loaded:false,movementsLoaded:false,profileLoaded:false,notice:'',profile:{name:'',email:'',phone:'',notificationsEnabled:true},draft:null,lastUpdated:'',authMode:'login'});if(modal.open)modal.close();const url=new URL(location.href);url.searchParams.delete('demo');history.replaceState(null,'',url);render();toast('Sesión cerrada');}
 function modalHeader(title,subtitle){return `<header class="modal-heading"><div><h2 id="modal-title">${esc(title)}</h2><p>${esc(subtitle)}</p></div><button type="button" data-action="close-modal" aria-label="Cerrar formulario">×</button></header>`;}
 function openDialog(html){modal.innerHTML=html;modal.showModal();setTimeout(()=>modal.querySelector('input:not([type=hidden]),select,button')?.focus(),20);}
@@ -101,7 +248,7 @@ const supportUrl='https://wa.me/51904670876?text='+encodeURIComponent('Hola, nec
 const helpNormalize=value=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es');
 function helpResults(){const query=helpNormalize(state.helpSearch.trim()),items=helpFaqs.filter(([q,a])=>helpNormalize(q+' '+a).includes(query));return items.length?items.map(([q,a])=>`<details class="help-faq"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join(''):`<div class="empty-state"><h2>No encontramos resultados</h2><p>Prueba con otra palabra o consulta al soporte por WhatsApp.</p></div>`;}
 function helpHtml(){return `<div class="info-layout"><section class="card"><h2>Preguntas frecuentes</h2><p class="hint">Encuentra cómo usar las funciones de MiStock.</p><div class="filter-bar"><div class="search-wrap">${icon('search')}<input type="search" data-filter="help" aria-label="Buscar en ayuda" placeholder="Buscar una pregunta…" value="${esc(state.helpSearch)}"></div></div><div id="help-results">${helpResults()}</div></section><section class="card support-card"><h2>¿No encontraste lo que buscas?</h2><p>Escríbenos y te ayudamos.</p><a class="btn support-link" href="${supportUrl}" target="_blank" rel="noopener noreferrer">Contactar por WhatsApp ↗</a></section><button class="quiet-button" data-nav="about">Acerca de MiStock →</button></div>`;}
-function aboutHtml(){return `<div class="info-layout"><section class="card about-intro"><img src="./logo.svg" width="68" height="68" alt=""><h2>MiStock</h2><p class="about-tagline">Tu inventario, siempre en tus manos</p><p class="hint">MiStock te ayuda a controlar el inventario de tu bodega de forma rápida, sencilla y eficiente.</p></section><section class="card about-data"><div><span>Versión web</span><strong>1.3</strong></div><div><span>Fecha de lanzamiento</span><strong>Octubre 2026</strong></div><div><span>Desarrollado por</span><strong>DavjStudio</strong></div></section><section class="card"><h2>Todo para tu inventario</h2><p class="hint">Productos, entradas y salidas, alertas de stock y el inventario de tu cuenta desde distintos dispositivos.</p><div class="info-links"><button class="quiet-button" data-nav="help">Ayuda y soporte →</button><a class="quiet-button" href="./privacidad.html">Datos y privacidad →</a></div></section><p class="about-thanks">¡Gracias por ser parte de MiStock!</p></div>`;}
+function aboutHtml(){return `<div class="info-layout"><section class="card about-intro"><img src="./logo.svg" width="68" height="68" alt=""><h2>MiStock</h2><p class="about-tagline">Tu inventario, siempre en tus manos</p><p class="hint">MiStock te ayuda a controlar el inventario de tu bodega de forma rápida, sencilla y eficiente.</p></section><section class="card about-data"><div><span>Versión web</span><strong>1.4</strong></div><div><span>Fecha de lanzamiento</span><strong>Noviembre 2026</strong></div><div><span>Desarrollado por</span><strong>DavjStudio</strong></div></section><section class="card"><h2>Todo para tu inventario</h2><p class="hint">Productos, entradas y salidas, alertas de stock y el inventario de tu cuenta desde distintos dispositivos.</p><div class="info-links"><button class="quiet-button" data-nav="help">Ayuda y soporte →</button><a class="quiet-button" href="./privacidad.html">Datos y privacidad →</a></div></section><p class="about-thanks">¡Gracias por ser parte de MiStock!</p></div>`;}
 
 async function boot(){try{const response=await fetch('./config.json',{cache:'no-cache'});if(!response.ok)throw new Error();api=new FirebaseClient(await response.json());const params=new URLSearchParams(location.search);if(params.get('demo')==='1')demo();else render();if(params.get('install')==='ios'&&!installed())setTimeout(showInstall,300);if('serviceWorker'in navigator&&window.isSecureContext)navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});}catch{root.innerHTML=`<main class="boot"><h1>No se pudo abrir MiStock</h1><p>Comprueba la conexión y vuelve a cargar la página.</p><a class="btn btn-primary" href="./">Reintentar</a><a class="back-link" href="https://davjstudio.github.io/mistock-descargas/">Ir a descargas</a></main>`;}}
 boot();
