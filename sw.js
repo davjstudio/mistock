@@ -1,6 +1,6 @@
 const BASE=new URL('./',self.location.href);
-const CACHE='mistock-main-shell-v6';
-const SHELL=['index.html','app.css?v=1.5','app.js?v=1.5','api.js?v=1.5','photos.js','config.json','manifest.webmanifest','base.css','logo.svg','icon-180.png','icon-192.png','icon-512.png','privacidad.html','planes.html','planes.css','plans.js','reports.js','pro-ui.css?v=1.5'].map(path=>new URL(path,BASE).href);
+const CACHE='mistock-main-shell-v7';
+const SHELL=['index.html','app.css?v=1.5','app.js?v=1.5.1','api.js?v=1.5','photos.js','config.json','manifest.webmanifest','base.css','logo.svg','icon-180.png','icon-192.png','icon-512.png','privacidad.html','planes.html','planes.css','plans.js','reports.js?v=1.5.1','pro-ui.css?v=1.5'].map(path=>new URL(path,BASE).href);
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('mistock-main-shell-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{

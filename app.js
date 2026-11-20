@@ -1,5 +1,5 @@
 import {isProActive,weeklyStatistics} from './plans.js';
-import {generalCsv,reportPdf} from './reports.js';
+import {generalCsv,reportPdf} from './reports.js?v=1.5.1';
 import {FirebaseClient,AppError,categories,parsePrice,positiveQuantity,nextStock,statusOf,exportCsv,exportMovementsCsv} from './api.js?v=1.5';
 import {photoSource,fileToPhoto} from './photos.js';
 const root=document.querySelector('#app'),modal=document.querySelector('#modal'),toastElement=document.querySelector('#toast');

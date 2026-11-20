@@ -18,9 +18,9 @@ export function reportPdf(products, movements, generated = new Date()) {
     const clean = String(text).replace(/[\r\n\t]+/g, ' ');
     const rows = [];
     let remainder = clean;
-    while (remainder.length > 88) {
-      const space = remainder.lastIndexOf(' ', 88);
-      const cut = space > 20 ? space : 88;
+    while (remainder.length > 52) {
+      const space = remainder.lastIndexOf(' ', 52);
+      const cut = space > 20 ? space : 52;
       rows.push(remainder.slice(0, cut));
       remainder = remainder.slice(cut).trimStart();
     }
