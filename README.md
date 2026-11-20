@@ -7,7 +7,7 @@ Aplicación principal de MiStock: inventario, movimientos, alertas de stock, per
 - Demostración: https://davjstudio.github.io/mistock/?demo=1
 - Descargas para Windows y Android: https://davjstudio.github.io/mistock-descargas/
 
-La versión web 1.4 incorpora navegación superior adaptable y un resumen con disponibilidad, valor, actividad reciente y reposición.
+La versión web 1.5 incorpora Básico gratuito y Pro por S/ 29 al mes, compatibles con los campos plan, planStatus y proExpiresAt de Android. Pro incluye estadísticas, gráficos de siete días y reportes PDF y CSV para Excel. La activación se realiza manualmente en el proyecto existente. La demostración permite simular ambos planes con datos temporales.
 
 ## Uso
 

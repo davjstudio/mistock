@@ -1,3 +1,4 @@
+import {parsePlan} from './plans.js';
 export const categories=['Abarrotes','Bebidas','Lácteos','Limpieza','Snacks','Otros'];
 export class AppError extends Error{constructor(message,status=0){super(message);this.name='AppError';this.status=status;}}
 export function friendlyError(code='',status=0){
@@ -80,7 +81,7 @@ export class FirebaseClient{
  async list(collection,parse){let token='';const seen=new Set(),items=[];do{const data=await this.send('GET',`${this.userPath}/${collection}?pageSize=300${token?`&pageToken=${encodeURIComponent(token)}`:''}`);for(const doc of data.documents||[])items.push(parse(doc));token=data.nextPageToken||'';if(token&&seen.has(token))throw new AppError('No se pudo completar la lista. Vuelve a actualizar.');seen.add(token);}while(token);return items;}
  async products(){return (await this.list('products',parseProduct)).sort((a,b)=>a.name.localeCompare(b.name,'es'));}
  async movements(){return (await this.list('movements',parseMovement)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));}
- async profile(){const doc=await this.optional(this.userPath),f=doc?.fields||{};return {name:f.name?.stringValue||this.displayName,email:this.email,phone:f.phone?.stringValue||'',notificationsEnabled:f.notificationsEnabled?.booleanValue??true};}
+ async profile(){const doc=await this.optional(this.userPath),f=doc?.fields||{};return {name:f.name?.stringValue||this.displayName,email:this.email,phone:f.phone?.stringValue||'',notificationsEnabled:f.notificationsEnabled?.booleanValue??true,subscription:parsePlan(f)};}
  async setNotifications(enabled){await this.send('PATCH',`${this.userPath}?updateMask.fieldPaths=notificationsEnabled`,{fields:{notificationsEnabled:{booleanValue:enabled}}});}
  async saveProduct(product,isNew){
   const fields={name:text(product.name),price:{doubleValue:product.price},stock:integer(product.stock),minStock:integer(product.minStock),category:text(product.category),description:text(product.description),imageBase64:text(product.imageBase64||'')};

@@ -1,0 +1,16 @@
+.subscription-badge{background:#e7efff;color:#164caa;padding:7px 9px;border-radius:8px;font-size:11px;font-weight:750;white-space:nowrap;min-height:38px}
+.subscription-layout{max-width:1000px;margin:auto}
+.subscription-current{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+.subscription-current h2{margin:0 0 8px}.subscription-current p{margin:5px 0;font-size:13px;color:var(--muted)}
+.subscription-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.subscription-options .card{display:flex;flex-direction:column;gap:10px}.subscription-options h2{margin:0}.subscription-options strong{font-size:25px}.subscription-options ul{padding-left:20px;margin:4px 0;line-height:1.9;font-size:14px}
+.subscription-options .pro-card{border-color:#89b3f9;background:#f2f7ff}
+.demo-plans{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}.demo-plans small{width:100%;color:var(--muted)}
+.plan-expiry{font-variant-numeric:tabular-nums}.pro-intro{display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap}.pro-intro .btn{font-size:12px;gap:6px}.report-actions{display:flex;gap:10px;flex-wrap:wrap}
+.pro-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}.pro-metric{padding:18px;background:white;border:1px solid var(--border);border-radius:13px}.pro-metric span{font-size:12px;color:var(--muted);display:block}.pro-metric strong{display:block;font-size:28px;margin-top:8px;overflow-wrap:anywhere}
+.weekly-chart{margin-top:20px}.chart-legend{display:flex;gap:16px;font-size:12px;color:var(--muted)}.chart-legend span:before{content:'';display:inline-block;width:9px;height:9px;border-radius:3px;background:#0e9f6e;margin-right:5px}.chart-legend .exits:before{background:#e5484d}
+.chart-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin:20px 0 14px}.chart-day{text-align:center;min-width:0}.chart-bars{height:150px;display:flex;align-items:flex-end;justify-content:center;gap:4px;border-bottom:1px solid var(--border)}.chart-bar{display:block;width:30%;max-width:30px;background:#0e9f6e;border-radius:5px 5px 0 0}.chart-bar.exits{background:#e5484d}.chart-day small{display:block;font-size:11px;margin-top:8px;color:var(--muted)}
+.weekly-table{width:100%;border-collapse:collapse;font-size:12px}.weekly-table th,.weekly-table td{padding:7px 10px;border-bottom:1px solid #e8eef8;text-align:right}.weekly-table th:first-child,.weekly-table td:first-child{text-align:left}
+.pro-value-gate{padding-block:12px}.pro-value-gate strong{display:block;font-size:16px}.pro-value-gate .quiet-button{color:#e3eeff;padding-left:0}.report-hint{font-size:12px;line-height:1.6;color:var(--muted)}
+@media(max-width:720px){.subscription-options{grid-template-columns:1fr}.pro-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.account-tools{gap:2px}.account-tools .app-help{min-width:30px;padding-inline:4px}.subscription-badge{font-size:10px;padding:6px}.web-nav{grid-template-columns:repeat(5,minmax(0,1fr))}.chart-days{gap:4px}.chart-day small{font-size:10px}.pro-metric{padding:14px}.pro-metric strong{font-size:23px}}
+@media(max-width:380px){.web-nav .nav-button{font-size:10px}.web-nav .nav-button .icon{width:16px;height:16px}}
